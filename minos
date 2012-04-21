@@ -1,0 +1,179 @@
+#!/bin/sh
+
+function make_pkgbuild(){
+# Input:
+#       the pkgver (mandatory)
+#       the pkgrel (optional)
+
+if [ "$1" == "" ];
+then
+    echo "Error: You must specify the version"
+    exit 127
+fi
+
+
+# Retrieve all the information from the source
+pkgver=$1
+
+if [ "$2"  == ""  ];
+then
+    pkgrel=1
+else
+    pkgrel=$2
+fi
+
+#Creating PKGBUILD
+echo "Creating PKGBUILD..."
+sed -e "s/pkgver=.*/pkgver=${pkgver}/" \
+    -e "s/pkgrel=.*/pkgrel=$pkgrel/" PKGBUILD-TMP > tmp
+
+source ./tmp
+md5=()
+for link in ${source[@]}
+do
+    wget -O sourcefile $link
+    m=$(md5sum sourcefile)
+    md5+=(${m:0:32})
+done
+rm sourcefile
+
+#Editing PKGBUILD
+sed -e "s/md5sums=.*/md5sums=(${md5[@]})/" \
+    tmp > PKGBUILD
+rm tmp
+
+}
+
+
+
+
+function make_tar(){
+# Input: the pkgrel (optional)
+
+if [ "$1" == "" ];
+then
+    echo "Error: You must specify the version"
+    exit 127
+fi
+
+make_pkgbuild $1 $2
+
+#Test if makepkg -fsc terminate well
+echo "Testing makepkg..."
+makepkg -fsc
+
+if [ $? == 0 ];
+then
+    echo "Creating source for AUR..."
+    rm -f *.pkg.tar.xz
+    makepkg -fc --source
+    rm -f PKGBUILD
+else
+    echo "Error: Couldn't create source because of an error for PKGBUILD."
+    exit 128
+fi
+
+}
+
+function make_html(){
+
+source ./PKGBUILD-TMP
+
+asciidoc -d manpage -b html4 -o $pkgname.1.html \
+    ../trunk/$pkgname/README
+
+}
+
+function make_man(){
+
+source ./PKGBUILD-TMP
+asciidoc -d manpage -b docbook -o $pkname.1.xml ../trunk/$pkgname/README
+xmlto man $pkgname.1.xml # Add --skip-validation if it doesn't work
+
+rm $pkgname.1.xml
+
+}
+
+function clean(){
+
+source ./PKGBUILD-TMP
+
+# cleaning tar
+if [ -f $pkgname-$pkgver.tar.gz ]
+then
+    rm -f $pkgname-$pkgver.tar.gz
+fi
+
+if [ -f $pkgname-$pkgver-*.tar.gz ]
+then
+    rm -f $pkgname-$pkgver-*.tar.gz
+fi
+
+if [ -f *.pkg.tar.xz ]
+then
+    rm -f *.pkg.tar.xz
+fi
+
+
+# cleaning html
+if [ -f $pkgname.1.html ]
+then
+    rm -f $pkgname.1.html
+fi
+
+if [ -f $pkgname.1 ]
+then
+    rm -f $pkgname.1
+fi
+
+
+
+}
+
+function help(){
+    echo "Usage:"
+    echo "$0 pkgbuild pkgver [pkgrel]"
+    echo "$0 tar pkgver [pkgrel]"
+    echo "$0 html"
+    echo "$0 man"
+    echo "$0 clean"
+    echo ""
+    echo "pkgbuild: generate PKGBUILD."
+    echo "tar: generate the tarball source code and the aur tarball."
+    echo "html: generate the html documentation."
+    echo "man: generate the man documentation."
+    echo "clean: clean the working directory."
+    echo "pkgrel is 1 to default."
+}
+
+
+if [ "$1" == "--help" ] || [ "$1" == "-h" ];
+then
+    help
+    exit 0
+fi
+
+if [ "$1" == pkgbuild ]
+then
+    make_pkgbuild $2 $3
+elif [ "$1" == tar ]
+then
+    make_tar $2 $3
+elif [ "$1" == html ]
+then
+    make_html
+elif [ "$1" == man ]
+then
+    make_man
+elif [ "$1" == clean ]
+then
+    clean
+else
+    echo "Error: You must specify the target tar/html/man"
+    echo ""
+    help
+    exit 128
+fi
+
+
+
