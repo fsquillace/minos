@@ -1,0 +1,31 @@
+#Mantainer: Your name <mail@mail.com>
+pkgname=yourproject
+# pkgver and pkgrel will be automatically generated
+pkgver=
+pkgrel=
+author=yourgithubname
+pkgdesc="A description"
+arch=(any)
+url="https://github.com/$author/$package"
+license=()
+depends=()
+makedepends=()
+provides=()
+options=()
+
+source=(https://github.com/$author/$pkgname/tarball/$pkgver)
+
+
+# md5sums will be automatically generated
+md5sums=('')
+
+
+build() {
+  # Pass to the source folder
+  cd $srcdir/$author-$pkgname-*
+
+
+  # Write all the operation for creating the package
+}
+
+# vim:set ts=2 sw=2 et:

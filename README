@@ -25,7 +25,7 @@ The actions *pkgbuild* and *tar* receive two arguments:
 
     *pkgver* - (Mandatory) The version to be applied into the template
 
-    *pkgver* - (Optional) The release number (To default is 1)
+    *pkgrel* - (Optional) The release number (To default is 1)
 
 DESCRIPTION
 -----------
