@@ -87,7 +87,7 @@ asciidoc -d manpage -b html4 -o $pkgname.1.html \
 function make_man(){
 
 source ./PKGBUILD-TMP
-asciidoc -v -d manpage -b docbook -o $pkname.1.xml ../trunk/$pkgname/README
+asciidoc -v -d manpage -b docbook -o $pkgname.1.xml ../trunk/$pkgname/README
 xmlto man $pkgname.1.xml # Add --skip-validation if it doesn't work
 
 rm $pkgname.1.xml

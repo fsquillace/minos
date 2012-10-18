@@ -39,7 +39,7 @@ The ideal folder structure of the project is the following below. In this way *m
      |
      --->package
      |    |
-     |    --->PKGBUILD
+     |    --->PKGBUILD-TMP
      |
      --->trunk
            |
@@ -51,7 +51,7 @@ The ideal folder structure of the project is the following below. In this way *m
                      |
                      --->VERSION
 
-*minos* pkbuild, tar and clean can also work without having this folder structure but *minos* needs to be executed where 'PKGBUILD' is located anyway in order to take all the information of the package from there.
+*minos* pkbuild, tar and clean can also work without having this folder structure but *minos* needs to be executed where 'PKGBUILD-TMP' is located anyway in order to take all the information of the package from there.
 
 TIPS & TRICKS
 -------------
